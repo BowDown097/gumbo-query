@@ -17,57 +17,38 @@
 #include "Selection.h"
 #include "QueryUtil.h"
 
-CNode::CNode(GumboNode* apNode)
+bool CNode::valid() const
 {
-	mpNode = apNode;
+    return mpNode != nullptr;
 }
 
-CNode::~CNode()
-{
-}
-
-CNode CNode::parent()
+CNode CNode::parent() const
 {
 	return CNode(mpNode->parent);
 }
 
-CNode CNode::nextSibling()
+CNode CNode::nextSibling() const
 {
 	return parent().childAt(mpNode->index_within_parent + 1);
 }
 
-CNode CNode::prevSibling()
+CNode CNode::prevSibling() const
 {
 	return parent().childAt(mpNode->index_within_parent - 1);
 }
 
-unsigned int CNode::childNum()
+unsigned int CNode::childNum() const
 {
-	if (mpNode->type != GUMBO_NODE_ELEMENT)
-	{
-		return 0;
-	}
-
-	return mpNode->v.element.children.length;
-
+    return mpNode->type == GUMBO_NODE_ELEMENT ? mpNode->v.element.children.length : 0;
 }
 
-bool CNode::valid()
+CNode CNode::childAt(size_t i) const
 {
-	return mpNode != NULL;
+    return mpNode->type == GUMBO_NODE_ELEMENT && i < mpNode->v.element.children.length
+        ? CNode(static_cast<GumboNode*>(mpNode->v.element.children.data[i])) : CNode();
 }
 
-CNode CNode::childAt(size_t i)
-{
-	if (mpNode->type != GUMBO_NODE_ELEMENT || i >= mpNode->v.element.children.length)
-	{
-		return CNode();
-	}
-
-	return CNode((GumboNode*) mpNode->v.element.children.data[i]);
-}
-
-std::string CNode::attribute(std::string key)
+std::string CNode::attribute(const std::string& key) const
 {
 	if (mpNode->type != GUMBO_NODE_ELEMENT)
 	{
@@ -77,7 +58,7 @@ std::string CNode::attribute(std::string key)
 	GumboVector attributes = mpNode->v.element.attributes;
 	for (unsigned int i = 0; i < attributes.length; i++)
 	{
-		GumboAttribute* attr = (GumboAttribute*) attributes.data[i];
+        GumboAttribute* attr = static_cast<GumboAttribute*>(attributes.data[i]);
 		if (key == attr->name)
 		{
 			return attr->value;
@@ -87,17 +68,17 @@ std::string CNode::attribute(std::string key)
 	return "";
 }
 
-std::string CNode::text()
+std::string CNode::text() const
 {
 	return CQueryUtil::nodeText(mpNode);
 }
 
-std::string CNode::ownText()
+std::string CNode::ownText() const
 {
 	return CQueryUtil::nodeOwnText(mpNode);
 }
 
-size_t CNode::startPos()
+size_t CNode::startPos() const
 {
 	switch(mpNode->type)
 	{
@@ -110,7 +91,7 @@ size_t CNode::startPos()
   }
 }
 
-size_t CNode::endPos()
+size_t CNode::endPos() const
 {
 	switch(mpNode->type)
 	{
@@ -123,7 +104,7 @@ size_t CNode::endPos()
 	}
 }
 
-size_t CNode::startPosOuter()
+size_t CNode::startPosOuter() const
 {
 	switch(mpNode->type)
 	{
@@ -136,7 +117,7 @@ size_t CNode::startPosOuter()
 	}
 }
 
-size_t CNode::endPosOuter()
+size_t CNode::endPosOuter() const
 {
 	switch(mpNode->type)
 	{
@@ -149,19 +130,13 @@ size_t CNode::endPosOuter()
 	}
 }
 
-std::string CNode::tag()
+std::string CNode::tag() const
 {
-	if (mpNode->type != GUMBO_NODE_ELEMENT)
-	{
-		return "";
-	}
-
-	return gumbo_normalized_tagname(mpNode->v.element.tag);
+    return mpNode->type == GUMBO_NODE_ELEMENT ? gumbo_normalized_tagname(mpNode->v.element.tag): "";
 }
 
-CSelection CNode::find(std::string aSelector)
+CSelection CNode::find(const std::string& aSelector) const
 {
-	CSelection c(mpNode);
-	return c.find(aSelector);
+    return CSelection(mpNode).find(aSelector);
 }
 /* vim: set ts=4 sw=4 sts=4 tw=100 noet: */

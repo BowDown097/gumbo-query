@@ -16,54 +16,34 @@
 #ifndef NODE_H_
 #define NODE_H_
 
-#include <gumbo.h>
 #include <string>
 
 class CSelection;
+class GumboInternalNode;
 
 class CNode
 {
-	public:
+public:
+    CNode(GumboInternalNode* apNode = nullptr) : mpNode(apNode) {}
+    virtual ~CNode() = default;
 
-		CNode(GumboNode* apNode = NULL);
-
-		virtual ~CNode();
-
-	public:
-
-		bool valid();
-
-		CNode parent();
-
-		CNode nextSibling();
-
-		CNode prevSibling();
-
-		unsigned int childNum();
-
-		CNode childAt(size_t i);
-
-		std::string attribute(std::string key);
-
-		std::string text();
-
-		std::string ownText();
-
-		size_t startPos();
-
-		size_t endPos();
-
-		size_t startPosOuter();
-
-		size_t endPosOuter();
-
-		std::string tag();
-
-		CSelection find(std::string aSelector);
-
-	private:
-
-		GumboNode* mpNode;
+    bool valid() const;
+    CNode parent() const;
+    CNode nextSibling() const;
+    CNode prevSibling() const;
+    unsigned int childNum() const;
+    CNode childAt(size_t i) const;
+    std::string attribute(const std::string& key) const;
+    std::string text() const;
+    std::string ownText() const;
+    size_t startPos() const;
+    size_t endPos() const;
+    size_t startPosOuter() const;
+    size_t endPosOuter() const;
+    std::string tag() const;
+    CSelection find(const std::string& aSelector) const;
+private:
+    GumboInternalNode* mpNode;
 };
 
 #endif /* NODE_H_ */

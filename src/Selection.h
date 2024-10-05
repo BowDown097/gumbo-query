@@ -16,35 +16,31 @@
 #ifndef SELECTION_H_
 #define SELECTION_H_
 
+#include "SelectionIterator.h"
 #include "Object.h"
 #include <vector>
-#include <string>
-#include <gumbo.h>
 
-class CNode;
+class GumboInternalNode;
 
 class CSelection: public CObject
 {
+public:
+    using iterator = CSelectionIterator;
 
-	public:
+    explicit CSelection(GumboInternalNode* apNode);
+    explicit CSelection(const std::vector<GumboInternalNode*>& aNodes) : mNodes(aNodes) {}
+    virtual ~CSelection() override = default;
 
-		CSelection(GumboNode* apNode);
+    CSelection find(const std::string& aSelector) const;
+    bool hasMatch() const;
+    CNode nodeAt(size_t i) const;
+    size_t nodeNum() const;
 
-		CSelection(std::vector<GumboNode*> aNodes);
-
-		virtual ~CSelection();
-
-	public:
-
-		CSelection find(std::string aSelector);
-
-		CNode nodeAt(size_t i);
-
-		size_t nodeNum();
-
-	private:
-
-		std::vector<GumboNode*> mNodes;
+    iterator begin() const;
+    iterator end() const;
+    CNode operator[](size_t i) const;
+private:
+    std::vector<GumboInternalNode*> mNodes;
 };
 
 #endif /* SELECTION_H_ */
